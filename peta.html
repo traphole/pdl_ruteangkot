@@ -67,6 +67,7 @@
               map: map,
               animation: google.maps.Animation.DROP,
             });
+            console.log("Asal: " + asal.getPosition().lng() + " " + asal.getPosition().lat());
           } else {
             if (tujuan != null) {
               tujuan.setMap(null);
@@ -77,6 +78,7 @@
               map: map,
               animation: google.maps.Animation.DROP,
             });
+            console.log("Tujuan: " + tujuan.getPosition().lng() + " " + tujuan.getPosition().lat());
           }
         })
       }
