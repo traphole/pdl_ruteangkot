@@ -14,9 +14,6 @@
       var asal = null;
       var tujuan = null;
 
-      var directionsDisplay = new google.maps.DirectionsRenderer();
-      var directionsService = new google.maps.DirectionsService();
-
       PilihAsalTujuanControl.prototype.toggleAsal = true;
       
       function PilihAsalTujuanControl(controlDiv, map) {
@@ -40,7 +37,7 @@
         // Set CSS for the control interior
         var controlText = document.createElement('div');
         controlText.style.fontFamily = 'Arial,sans-serif';
-        controlText.style.fontSize = '12px';
+        controlText.style.fontSize = '16px';
         controlText.style.paddingLeft = '4px';
         controlText.style.paddingRight = '4px';
         controlText.innerHTML = '<b>Memilih asal</b>';
@@ -82,49 +79,6 @@
             });
           }
         })
-
-      }
-
-      function RouteControl(controlDiv, map) {
-
-        // Set CSS styles for the DIV containing the control
-        // Setting padding to 5 px will offset the control
-        // from the edge of the map
-        controlDiv.style.padding = '5px';
-
-        // Set CSS for the control border
-        var controlUI = document.createElement('div');
-        controlUI.style.backgroundColor = 'white';
-        controlUI.style.borderStyle = 'solid';
-        controlUI.style.borderWidth = '1px';
-        controlUI.style.cursor = 'pointer';
-        controlUI.style.textAlign = 'center';
-        controlUI.title = '';
-        controlDiv.appendChild(controlUI);
-
-        // Set CSS for the control interior
-        var controlText = document.createElement('div');
-        controlText.style.fontFamily = 'Arial,sans-serif';
-        controlText.style.fontSize = '12px';
-        controlText.style.paddingLeft = '4px';
-        controlText.style.paddingRight = '4px';
-        controlText.innerHTML = 'Calculate Route';
-        controlUI.appendChild(controlText);
-
-        // Setup the click event listeners: simply set the map to
-        // Chicago
-        google.maps.event.addDomListener(controlUI, 'click', function() {
-          var requestOptions = {
-            origin: asal.getPosition(),
-            destination: tujuan.getPosition(),
-            travelMode: google.maps.TravelMode.DRIVING
-          }
-          directionsService.route(requestOptions, function(result, status) {
-            if (status == google.maps.DirectionsStatus.OK) {
-              directionsDisplay.setDirections(result);
-            }
-          })
-        });
       }
 
       function initialize() {
@@ -137,8 +91,6 @@
         var map = new google.maps.Map(document.getElementById("map-canvas"),
             mapOptions);
 
-        directionsDisplay.setMap(map);
-
         // Create the DIV to hold the control and
         // call the HomeControl() constructor passing
         // in this DIV.
@@ -146,11 +98,6 @@
         var pilihAsalTujuanControl = new PilihAsalTujuanControl(pilihAsalTujuanControlDiv, map);
         pilihAsalTujuanControlDiv.index = 1;
         map.controls[google.maps.ControlPosition.RIGHT_TOP].push(pilihAsalTujuanControlDiv);
-
-        var routeControlDiv = document.createElement('div');
-        var routeControl = new RouteControl(routeControlDiv, map);
-        routeControlDiv.index = 1;
-        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(routeControlDiv);
       }
 
       google.maps.event.addDomListener(window, 'load', initialize);

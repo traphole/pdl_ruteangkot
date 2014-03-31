@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas { height: 100% }
+    </style>
+    <script type="text/javascript"
+      src="http://maps.googleapis.com/maps/api/js?sensor=false">
+    </script>
+    <script type="text/javascript">
+      var rute = []
+
+      var directionsDisplay = new google.maps.DirectionsRenderer();
+      var directionsService = new google.maps.DirectionsService();
+
+      function RouteControl(controlDiv, map) {
+
+        // Set CSS styles for the DIV containing the control
+        // Setting padding to 5 px will offset the control
+        // from the edge of the map
+        controlDiv.style.padding = '5px';
+
+        // Set CSS for the control border
+        var controlUI = document.createElement('div');
+        controlUI.style.backgroundColor = 'white';
+        controlUI.style.borderStyle = 'solid';
+        controlUI.style.borderWidth = '1px';
+        controlUI.style.cursor = 'pointer';
+        controlUI.style.textAlign = 'center';
+        controlUI.title = '';
+        controlDiv.appendChild(controlUI);
+
+        // Set CSS for the control interior
+        var controlText = document.createElement('div');
+        controlText.style.fontFamily = 'Arial,sans-serif';
+        controlText.style.fontSize = '12px';
+        controlText.style.paddingLeft = '4px';
+        controlText.style.paddingRight = '4px';
+        controlText.innerHTML = 'Calculate Route';
+        controlUI.appendChild(controlText);
+
+        // Setup the click event listeners: simply set the map to
+        // Chicago
+        google.maps.event.addDomListener(controlUI, 'click', function() {
+          var waypts = []
+          for (var i = 1; i < rute.length-1; i++) {
+            waypts.push({location: rute[i].getPosition()});
+          };
+          var requestOptions = {
+            origin: rute[0].getPosition(),
+            destination: rute[rute.length-1].getPosition(),
+            waypoints: waypts,
+            travelMode: google.maps.TravelMode.DRIVING
+          }
+          directionsService.route(requestOptions, function(result, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+              directionsDisplay.setDirections(result);
+
+              var rt = result.routes[0];
+              var coordString = "";
+
+              for (var h=0; h<rt.legs.length; h++) {
+                lg = rt.legs[h];
+                for (var i=0; i<lg.steps.length; i++) {
+                  st = lg.steps[i];
+                  for(var j=0; j<st.path.length; j++) {
+                    coordString += st.path[j].lng() + " " + st.path[j].lat() + ",";
+                  }
+                }
+              }
+
+              console.log(coordString);
+            }
+          })
+        });
+      }
+
+      function initialize() {
+        var itebe = new google.maps.LatLng(-6.892578,107.610397);
+        var mapOptions = {
+          center: itebe,
+          zoom: 15,
+          streetViewControl: false,
+        };
+        var map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);
+
+        directionsDisplay.setMap(map);
+
+        google.maps.event.addDomListener(map, 'click', function(e) {
+          var marker = new google.maps.Marker({
+            position: e.latLng,
+            map: map
+          });
+          google.maps.event.addDomListener(marker, 'click', function() {
+            marker.setMap(null);
+            rute.splice(rute.indexOf(marker), 1);
+          })
+          rute.push(marker);
+        })
+
+        var routeControlDiv = document.createElement('div');
+        var routeControl = new RouteControl(routeControlDiv, map);
+        routeControlDiv.index = 1;
+        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(routeControlDiv);
+      }
+
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas" />
+  </body>
+</html>
