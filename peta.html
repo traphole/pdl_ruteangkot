@@ -11,105 +11,149 @@
       src="http://maps.googleapis.com/maps/api/js?sensor=false">
     </script>
     <script type="text/javascript">
-      var map;
+      var asal = null;
+      var tujuan = null;
+
+      var directionsDisplay = new google.maps.DirectionsRenderer();
+      var directionsService = new google.maps.DirectionsService();
+
+      PilihAsalTujuanControl.prototype.toggleAsal = true;
+      
+      function PilihAsalTujuanControl(controlDiv, map) {
+        var control = this;
+
+        // Set CSS styles for the DIV containing the control
+        // Setting padding to 5 px will offset the control
+        // from the edge of the map
+        controlDiv.style.padding = '5px';
+
+        // Set CSS for the control border
+        var controlUI = document.createElement('div');
+        controlUI.style.backgroundColor = 'white';
+        controlUI.style.borderStyle = 'solid';
+        controlUI.style.borderWidth = '1px';
+        controlUI.style.cursor = 'pointer';
+        controlUI.style.textAlign = 'center';
+        controlUI.title = 'Klik untuk berubah antara memilih titik asal dan titik tujuan';
+        controlDiv.appendChild(controlUI);
+
+        // Set CSS for the control interior
+        var controlText = document.createElement('div');
+        controlText.style.fontFamily = 'Arial,sans-serif';
+        controlText.style.fontSize = '12px';
+        controlText.style.paddingLeft = '4px';
+        controlText.style.paddingRight = '4px';
+        controlText.innerHTML = '<b>Memilih asal</b>';
+        controlUI.appendChild(controlText);
+
+        // Setup the click event listeners: simply set the map to
+        // Chicago
+        google.maps.event.addDomListener(controlUI, 'click', function() {
+          if (!control.toggleAsal) {
+            control.toggleAsal = true;
+            controlText.innerHTML = '<b>Memilih asal</b>';
+          }
+          else {
+            control.toggleAsal = false;
+            controlText.innerHTML = '<b>Memilih tujuan</b>';
+          }
+        });
+
+        google.maps.event.addListener(map, 'click', function(e) {
+          if (control.toggleAsal) {
+            if (asal != null) {
+              asal.setMap(null);
+              asal = null;
+            }
+            asal = new google.maps.Marker({
+              position: e.latLng,
+              map: map,
+              animation: google.maps.Animation.DROP,
+            });
+          } else {
+            if (tujuan != null) {
+              tujuan.setMap(null);
+              tujuan = null;
+            }
+            tujuan = new google.maps.Marker({
+              position: e.latLng,
+              map: map,
+              animation: google.maps.Animation.DROP,
+            });
+          }
+        })
+
+      }
+
+      function RouteControl(controlDiv, map) {
+
+        // Set CSS styles for the DIV containing the control
+        // Setting padding to 5 px will offset the control
+        // from the edge of the map
+        controlDiv.style.padding = '5px';
+
+        // Set CSS for the control border
+        var controlUI = document.createElement('div');
+        controlUI.style.backgroundColor = 'white';
+        controlUI.style.borderStyle = 'solid';
+        controlUI.style.borderWidth = '1px';
+        controlUI.style.cursor = 'pointer';
+        controlUI.style.textAlign = 'center';
+        controlUI.title = '';
+        controlDiv.appendChild(controlUI);
+
+        // Set CSS for the control interior
+        var controlText = document.createElement('div');
+        controlText.style.fontFamily = 'Arial,sans-serif';
+        controlText.style.fontSize = '12px';
+        controlText.style.paddingLeft = '4px';
+        controlText.style.paddingRight = '4px';
+        controlText.innerHTML = 'Calculate Route';
+        controlUI.appendChild(controlText);
+
+        // Setup the click event listeners: simply set the map to
+        // Chicago
+        google.maps.event.addDomListener(controlUI, 'click', function() {
+          var requestOptions = {
+            origin: asal.getPosition(),
+            destination: tujuan.getPosition(),
+            travelMode: google.maps.TravelMode.DRIVING
+          }
+          directionsService.route(requestOptions, function(result, status) {
+            if (status == google.maps.DirectionsStatus.OK) {
+              directionsDisplay.setDirections(result);
+            }
+          })
+        });
+      }
 
       function initialize() {
+        var itebe = new google.maps.LatLng(-6.892578,107.610397);
         var mapOptions = {
-          center: new google.maps.LatLng(-6.892578,107.610397),
+          center: itebe,
           zoom: 15,
           streetViewControl: false,
         };
-        map = new google.maps.Map(document.getElementById("map-canvas"),
+        var map = new google.maps.Map(document.getElementById("map-canvas"),
             mapOptions);
 
-        var asalTujuanControlDiv = document.createElement('div');
-        var asalTujuanControl = new AsalTujuanControl(asalTujuanControlDiv, map);
-        asalTujuanControlDiv.index = 1;
-        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(asalTujuanControlDiv);
+        directionsDisplay.setMap(map);
+
+        // Create the DIV to hold the control and
+        // call the HomeControl() constructor passing
+        // in this DIV.
+        var pilihAsalTujuanControlDiv = document.createElement('div');
+        var pilihAsalTujuanControl = new PilihAsalTujuanControl(pilihAsalTujuanControlDiv, map);
+        pilihAsalTujuanControlDiv.index = 1;
+        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(pilihAsalTujuanControlDiv);
+
+        var routeControlDiv = document.createElement('div');
+        var routeControl = new RouteControl(routeControlDiv, map);
+        routeControlDiv.index = 1;
+        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(routeControlDiv);
       }
 
       google.maps.event.addDomListener(window, 'load', initialize);
-
-      AsalTujuanControl.prototype.asal_ = null;
-      AsalTujuanControl.prototype.tujuan_ = null;
-      AsalTujuanControl.prototype.asalToggled = true;
-      AsalTujuanControl.prototype.tujuanToggled = false;
-
-      function AsalTujuanControl(controlDiv, map, home) {
-        // Set CSS styles for the DIV containing the control
-        // Setting padding to 5 px will offset the control
-        // from the edge of the map.
-        controlDiv.style.padding = '5px';
-
-        var control = this;
-
-        // Set CSS for the control border.
-        var asalButtonUI = document.createElement('div');
-        asalButtonUI.style.backgroundColor = 'white';
-        asalButtonUI.style.borderStyle = 'solid';
-        asalButtonUI.style.borderWidth = '1px';
-        asalButtonUI.style.cursor = 'pointer';
-        asalButtonUI.style.textAlign = 'center';
-        asalButtonUI.title = '';
-        controlDiv.appendChild(asalButtonUI);
-
-        // Set CSS for the control interior.
-        var asalButtonText = document.createElement('div');
-        asalButtonText.style.fontFamily = 'Arial,sans-serif';
-        asalButtonText.style.fontSize = '12px';
-        asalButtonText.style.paddingLeft = '4px';
-        asalButtonText.style.paddingRight = '4px';
-        asalButtonText.innerHTML = '<b>Pilih Asal</b>';
-        asalButtonUI.appendChild(asalButtonText);
-
-        // Set CSS for the control border.
-        var tujuanButtonUI = document.createElement('div');
-        tujuanButtonUI.style.backgroundColor = 'white';
-        tujuanButtonUI.style.borderStyle = 'solid';
-        tujuanButtonUI.style.borderWidth = '1px';
-        tujuanButtonUI.style.cursor = 'pointer';
-        tujuanButtonUI.style.textAlign = 'center';
-        tujuanButtonUI.title = '';
-        controlDiv.appendChild(tujuanButtonUI);
-
-        // Set CSS for the control interior.
-        var tujuanButtonText = document.createElement('div');
-        tujuanButtonText.style.fontFamily = 'Arial,sans-serif';
-        tujuanButtonText.style.fontSize = '12px';
-        tujuanButtonText.style.paddingLeft = '4px';
-        tujuanButtonText.style.paddingRight = '4px';
-        tujuanButtonText.innerHTML = 'Pilih Tujuan';
-        tujuanButtonUI.appendChild(tujuanButtonText);
-
-        // Setup the click event listeners.
-        google.maps.event.addDomListener(asalButtonUI, 'click', function(event) {
-          if (control.tujuanToggled) {
-            asalButtonText.innerHTML = '<b>Pilih Asal</b>';
-            tujuanButtonText.innerHTML = 'Pilih Tujuan';
-            control.asalToggled = true;
-            control.tujuanToggled = false;
-          }
-        });
-
-        google.maps.event.addDomListener(tujuanButtonUI, 'click', function(event) {
-          if (control.asalToggled) {
-            asalButtonText.innerHTML = 'Pilih Asal';
-            tujuanButtonText.innerHTML = '<b>Pilih Tujuan</b>';
-            control.asalToggled = false;
-            control.tujuanToggled = true;
-          }
-        });
-
-        google.maps.event.addDomListener(map, 'click', function(event) {
-          var marker = new google.maps.Marker({
-              position: event.latLng,
-              map: map,
-              animation: google.maps.Animation.DROP,
-          });
-          control.asal_ = marker;
-          asalButtonText.innerHTML = control.asal_.position;
-        });
-      }
     </script>
   </head>
   <body>
