@@ -1,0 +1,27 @@
+@charset "UTF-8";
+/* CSS Document */
+
+.main {
+	margin-left:auto;
+	margin-right:auto;
+	background-color:#FFF;
+}
+
+.header {
+	
+}
+
+.bodyback {
+	background-color:rgb(234, 229, 229);
+}
+
+.bodymargin {
+	margin-top:30px;
+	margin-bottom:60px;
+
+.navigation {
+	font-family:Tahoma;
+	margin-top: 0px;
+	padding: 3px 3px;
+	text-align:right;
+}
