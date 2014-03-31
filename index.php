@@ -16,7 +16,7 @@
 
 <table width="100%">
 	<tr>
-		<td width="10%">
+		<td width="10%" class="header">
 			
 		</td>
         <td align="center">
@@ -43,7 +43,7 @@
 						</div>
 					</td>
                     <td width="20%" style="background-color:#FFD700;">
-						
+						Untuk mencari rute dan angkot yang perlu dinaiki, tunjuk tempat asal dan tempat tujuan yang akan dicapai pada peta di samping lalu tekan cari.
 					</td>
                     
                 </tr>

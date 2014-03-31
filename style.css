@@ -8,7 +8,7 @@
 }
 
 .header {
-	
+	margin-top:60px;
 }
 
 .bodyback {
@@ -18,10 +18,5 @@
 .bodymargin {
 	margin-top:30px;
 	margin-bottom:60px;
-
-.navigation {
-	font-family:Tahoma;
-	margin-top: 0px;
-	padding: 3px 3px;
-	text-align:right;
+	border-spacing:10px;
 }
