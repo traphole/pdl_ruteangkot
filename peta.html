@@ -8,29 +8,22 @@
       #map-canvas { height: 100% }
     </style>
     <script type="text/javascript"
-      src="https://maps.googleapis.com/maps/api/js?sensor=false">
+      src="http://maps.googleapis.com/maps/api/js?sensor=false">
     </script>
     <script type="text/javascript">
+      var map;
+
       function initialize() {
         var mapOptions = {
           center: new google.maps.LatLng(-6.892578,107.610397),
           zoom: 15,
           streetViewControl: false,
         };
-        var map = new google.maps.Map(document.getElementById("map-canvas"),
+        map = new google.maps.Map(document.getElementById("map-canvas"),
             mapOptions);
-
-        google.maps.event.addListener(map, 'click', function(event) {
-          var marker = new google.maps.Marker({
-              position: event.latLng,
-              map: map,
-              animation: google.maps.Animation.DROP,
-          });
-        });
 
         var asalTujuanControlDiv = document.createElement('div');
         var asalTujuanControl = new AsalTujuanControl(asalTujuanControlDiv, map);
-
         asalTujuanControlDiv.index = 1;
         map.controls[google.maps.ControlPosition.RIGHT_TOP].push(asalTujuanControlDiv);
       }
@@ -41,21 +34,6 @@
       AsalTujuanControl.prototype.tujuan_ = null;
       AsalTujuanControl.prototype.asalToggled = true;
       AsalTujuanControl.prototype.tujuanToggled = false;
-
-      // Define setters and getters for this property.
-      AsalTujuanControl.prototype.getAsal = function() {
-        return this.asal_;
-      };
-      AsalTujuanControl.prototype.getTujuan = function() {
-        return this.tujuan_;
-      };
-
-      AsalTujuanControl.prototype.setAsal = function(asal) {
-        this.asal_ = asal;
-      };
-      AsalTujuanControl.prototype.setTujuan = function(tujuan) {
-        this.tujuan = tujuan;
-      };
 
       function AsalTujuanControl(controlDiv, map, home) {
         // Set CSS styles for the DIV containing the control
@@ -120,6 +98,16 @@
             control.asalToggled = false;
             control.tujuanToggled = true;
           }
+        });
+
+        google.maps.event.addDomListener(map, 'click', function(event) {
+          var marker = new google.maps.Marker({
+              position: event.latLng,
+              map: map,
+              animation: google.maps.Animation.DROP,
+          });
+          control.asal_ = marker;
+          asalButtonText.innerHTML = control.asal_.position;
         });
       }
     </script>
