@@ -1,53 +1,60 @@
 <?php
+define('TOLERANCE', 0.0001);
+
 // koneksi ke PostgreSQL
 $dbconn = pg_connect("host=localhost dbname=rute_angkot user=postgres password=root") or die("Could not connect.");
 
 // dua titik (asal dan tujuan) buat coba-coba
-$titik_asal = pg_fetch_result(pg_query($dbconn, "SELECT ST_GeomFromText('POINT(107.61378765106201 -6.886421743802813)')"), 0);
-// $titik_asal = pg_fetch_result(pg_query($dbconn, "SELECT ST_GeomFromText('POINT(107.60696411132812 -6.904486234897582)')"), 0);
-$titik_tujuan = pg_fetch_result(pg_query($dbconn, "SELECT ST_GeomFromText('POINT(107.61863708496094 -6.905934772734723)')"), 0);
+$titik_asal = pg_fetch_result(pg_query($dbconn, "SELECT ST_GeomFromText('POINT(107.61507511138916 -6.882715029622187)')"), 0);
+// $titik_asal = pg_fetch_result(pg_query($dbconn, "SELECT ST_GeomFromText('POINT(107.6074469089508 -6.9051252962547895)')"), 0);
+$titik_tujuan = pg_fetch_result(pg_query($dbconn, "SELECT ST_GeomFromText('POINT(107.6184868812561 -6.906105188659265)')"), 0);
+var_dump($titik_asal);
+var_dump($titik_tujuan);
 
-// mengambil jurusan angkot yg terdekat dgn asal
-$jurusan_terdekat_asal_q = pg_query($dbconn, sprintf("SELECT id, geom, ST_Distance('%s', geom) AS distance FROM rute ORDER BY distance LIMIT 1", $titik_asal));
-$jurusan_terdekat_asal_id = pg_fetch_result($jurusan_terdekat_asal_q, "id");
-$jurusan_terdekat_asal_geom = pg_fetch_result($jurusan_terdekat_asal_q, "geom");
+$rute_antrian = array();
+$intersection = pg_fetch_all(pg_query($dbconn, sprintf("SELECT geom FROM rute WHERE ST_Intersects(ST_Buffer('$titik_asal', %f), geom)", TOLERANCE)));
 
-// mengambil jurusan angkot yg terdekat dgn tujuan
-$jurusan_terdekat_tujuan_q = pg_query($dbconn, sprintf("SELECT id, geom, ST_Distance('%s', geom) AS distance FROM rute ORDER BY distance LIMIT 1", $titik_tujuan));
-$jurusan_terdekat_tujuan_id = pg_fetch_result($jurusan_terdekat_tujuan_q, "id");
-$jurusan_terdekat_tujuan_geom = pg_fetch_result($jurusan_terdekat_tujuan_q, "geom");
+foreach ($intersection as $inter) {
+	$rute_antrian[] = [$inter["geom"]];
+}
 
-// apakah kedua jurusan tadi sama?
-$equal_check = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_Equals('%s', '%s')", $jurusan_terdekat_asal_geom, $jurusan_terdekat_tujuan_geom)), 0);
+while (count($rute_antrian) > 0) {
+	$array_rute_proses = array_shift($rute_antrian);
+	$rute_proses = $array_rute_proses[count($array_rute_proses)-1];
+	$sudah_sampai_tujuan = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_Intersects('$rute_proses', ST_Buffer('$titik_tujuan', %f))", TOLERANCE)), 0);
+	var_dump($sudah_sampai_tujuan);
+	if ($sudah_sampai_tujuan == 't') {
+		for ($i=0; $i < count($array_rute_proses); $i++) {
+			$bagian_rute_akhir = $array_rute_proses[$i];
+			if ($i == 0) {
+				$titik_awal = $titik_asal;
+			} else {
+				$rute_sebelumnya = $array_rute_proses[$i-1];
+				$titik_awal = pg_fetch_result(pg_query($dbconn, "SELECT ST_Intersection('$bagian_rute_akhir', '$rute_sebelumnya')"), 0);
+			}
+			if ($i == count($array_rute_proses)-1) {
+				$titik_akhir = $titik_tujuan;
+			} else {
+				$rute_sesudahnya = $array_rute_proses[$i+1];
+				$titik_akhir = pg_fetch_result(pg_query($dbconn, "SELECT ST_Intersection('$bagian_rute_akhir', '$rute_sesudahnya')"), 0);
+			}
+			var_dump($titik_awal);
+			var_dump($titik_akhir);
 
-if ($equal_check == 't') {
-	// sama. kembalikan substring yang berupa garis dari titik awal sampai titik akhir
-	$location_point_asal = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_LineLocatePoint('%s', '%s')", $jurusan_terdekat_asal_geom, $titik_asal)), 0);
-	$location_point_tujuan = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_LineLocatePoint('%s', '%s')", $jurusan_terdekat_tujuan_geom, $titik_tujuan)), 0);	
-	$rute_substring = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_AsGeoJSON(ST_LineSubstring('%s', %s, %s))",
-		$jurusan_terdekat_asal_geom, $location_point_asal, $location_point_tujuan)), 0);
-	// kembalikan sebagai GeoJSON untuk diparse oleh javascript
-	echo $rute_substring;
-} else {
-	// tidak sama. apakah kedua jurusan berpotongan?
-	$intersect_check = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_Intersects('%s', '%s')", $jurusan_terdekat_asal_geom, $jurusan_terdekat_tujuan_geom)), 0);
-	if ($intersect_check == 't') {
-		// berpotongan. kembalikan 2 substring, yaitu dari titik awal ke titik pindah angkot, lalu dari titik pindah angkot ke titik akhir.
-		$location_point_asal = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_LineLocatePoint('%s', '%s')", $jurusan_terdekat_asal_geom, $titik_asal)), 0);
-		$location_point_tujuan = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_LineLocatePoint('%s', '%s')", $jurusan_terdekat_tujuan_geom, $titik_tujuan)), 0);	
-		$titik_potong = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_Intersection('%s', '%s')", $jurusan_terdekat_asal_geom, $jurusan_terdekat_tujuan_geom)), 0);
-		$location_titik_potong_1 = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_LineLocatePoint('%s', '%s')", $jurusan_terdekat_asal_geom, $titik_potong)), 0);	
-		$location_titik_potong_2 = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_LineLocatePoint('%s', '%s')", $jurusan_terdekat_tujuan_geom, $titik_potong)), 0);	
-		$rute_substring_1 = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_AsGeoJSON(ST_LineSubstring('%s', %s, %s))",
-			$jurusan_terdekat_asal_geom, $location_point_asal, $location_titik_potong_1)), 0);
-		$rute_substring_2 = pg_fetch_result(pg_query($dbconn, sprintf("SELECT ST_AsGeoJSON(ST_LineSubstring('%s', %s, %s))",
-			$jurusan_terdekat_tujuan_geom, $location_titik_potong_2, $location_point_tujuan)), 0);
-		// kembalikan sebagai GeoJSON untuk diparse oleh javascript
-		echo $rute_substring_1;
-		echo $rute_substring_2;
+			$location_point_awal = pg_fetch_result(pg_query($dbconn, "SELECT ST_LineLocatePoint('$bagian_rute_akhir', '$titik_awal')"), 0);
+			$location_point_akhir = pg_fetch_result(pg_query($dbconn, "SELECT ST_LineLocatePoint('$bagian_rute_akhir', '$titik_akhir')"), 0);
+
+			$rute_substring = pg_fetch_result(pg_query($dbconn, "SELECT ST_AsGeoJSON(ST_LineSubstring('$bagian_rute_akhir', $location_point_awal, $location_point_akhir))"), 0);
+			echo $rute_substring;
+		}
+		break;
 	} else {
-		// tidak berpotongan.
-		// harus naik lebih dari 2 angkot sepertinya
+		$rute_lain_yg_intersect = pg_fetch_all(pg_query($dbconn, "SELECT geom FROM rute WHERE ST_Intersects('$rute_proses', geom) and not ST_Equals('$rute_proses', geom)"));
+		foreach ($rute_lain_yg_intersect as $rt) {
+			array_push($array_rute_proses, $rt["geom"]);
+			$rute_antrian[] = $array_rute_proses;
+			array_pop($array_rute_proses);
+		}
 	}
 }
 
