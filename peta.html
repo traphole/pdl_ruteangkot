@@ -100,6 +100,20 @@
         var pilihAsalTujuanControl = new PilihAsalTujuanControl(pilihAsalTujuanControlDiv, map);
         pilihAsalTujuanControlDiv.index = 1;
         map.controls[google.maps.ControlPosition.RIGHT_TOP].push(pilihAsalTujuanControlDiv);
+
+        // --- kode dibawah untuk menampilkan hasil query postgis berbentuk GeoJSON ---
+        
+        // var lineStringCoords = [];
+        // for (var i = 0; i < GeoJson.coordinates.length; i++) {
+        //   lineStringCoords.push(new google.maps.LatLng(GeoJson.coordinates[i][1], GeoJson.coordinates[i][0]));
+        // };
+        // var lineString = new google.maps.Polyline({
+        //   path: lineStringCoords,
+        //   map: map,
+        //   strokeColor: '#FF0000',
+        //   strokeOpacity: 1.0,
+        //   strokeWeight: 2
+        // })
       }
 
       google.maps.event.addDomListener(window, 'load', initialize);
