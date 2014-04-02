@@ -3,7 +3,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel='stylesheet' type="text/css" href="style.css"/>
-<title>About</title>
+<title>Rute Angkot</title>
+
 </head>
 
 <body class="main">
@@ -28,21 +29,19 @@
 	</tr>
     
     <tr class="bodyback">
-    	<td height="580px" colspan="5">
-        	<table width="80%" align="center" class="bodymargin">
+    	<td colspan="5">
+        	<table height="580px" width="80%" align="center" class="bodymargin">
             	<tr>
-				  <td>
-        				<div>
-							<iframe src="peta.html" width="100%" height="500">  </iframe>
-						</div>
-					</td>
-                    <td class="font" width="20%" bgcolor="#CBBBA0">
-						Untuk mencari rute dan angkot yang perlu dinaiki, tunjuk tempat asal dan tempat tujuan yang akan dicapai pada peta di samping lalu tekan cari.
+				  	<td align="center">
+                  		<img src="trap.jpg" width="339" height="339" />
+	        		</td>
+                    <td align="center">
+						<img src="hanif.jpg" width="339" height="339" />
 					</td>
                     
                 </tr>
             </table>
-      	</td>
+      </td>
     </tr>
 
 	<tr>

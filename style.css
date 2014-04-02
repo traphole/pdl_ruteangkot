@@ -8,7 +8,7 @@
 }
 
 .header {
-	margin-top:60px;
+	margin-top:30px;
 }
 
 .bodyback {
@@ -16,7 +16,7 @@
 }
 
 .bodymargin {
-	margin-top:30px;
+	margin-top:20px;
 	margin-bottom:60px;
 	border-spacing:10px;
 }
@@ -25,4 +25,18 @@
 	background-color:#111111;
 	text-align:center;
 	color:#FFF;
+	font:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+.font {
+	font:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+.font a {
+	text-decoration:none;
+	color:#CBBBA0;
+}
+
+.font a:hover {
+	color:#960;
 }
