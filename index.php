@@ -35,7 +35,7 @@
             	<tr>
 				  <td>
         				<div>
-							<iframe src="peta.html" width="100%" height="500">  </iframe>
+							<iframe class="frame" src="peta.html" width="100%" height="500">  </iframe>
 						</div>
 					</td>
                     <td class="font" width="20%" bgcolor="#CBBBA0">
