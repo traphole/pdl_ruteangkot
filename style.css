@@ -25,6 +25,8 @@
 	background-color:#111111;
 	text-align:center;
 	color:#FFF;
+	padding-top:30px;
+	padding-bottom:30px;
 	font:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
 
@@ -39,4 +41,10 @@
 
 .font a:hover {
 	color:#960;
+}
+
+.img {
+	border-width:5px;	
+	border-style:dashed;
+	border-color:#454544;
 }

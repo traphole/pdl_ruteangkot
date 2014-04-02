@@ -33,10 +33,14 @@
         	<table width="80%" align="center" class="bodymargin">
             	<tr>
 				  	<td align="center">
-                  		<img src="trap.jpg" width="339" height="339" />
+                  		<h1> Trapsilo Pramudya </h1>
+                        <img class="img" src="trap.jpg" width="339" height="339" /> <br />
+                        13510052@std.stei.itb.ac.id
 	        		</td>
                     <td align="center">
-						<img src="hanif.jpg" width="339" height="339" />
+                    	<h1> Hanif Eridaputra </h1>
+						<img class="img" src="hanif.jpg" width="339" height="339" /> <br />
+                        13510091@std.stei.itb.ac.id
 					</td>
                     
                 </tr>
