@@ -52,7 +52,7 @@
     </tr>
 
 	<tr>
-		<td colspan="5" style="background-color:#111111;text-align:center;">
+		<td colspan="5" class="footer">
 		lala
         </td>
 	</tr>
