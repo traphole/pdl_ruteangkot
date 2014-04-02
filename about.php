@@ -31,7 +31,8 @@
     
     <tr class="bodyback">
     	<td height="580" colspan="5">
-        	<table width="80%" align="center" class="bodymargin">
+        	<h1 align="center"> AngkotWay Team </h1>
+        	<table width="80%" align="center" class="bodymargin2">
             	<tr>
 				  	<td align="center">
                   		<h1> Trapsilo Pramudya </h1>
