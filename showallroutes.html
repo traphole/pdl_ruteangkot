@@ -23,75 +23,6 @@
         return color;
       }
 
-      PilihAsalTujuanControl.prototype.toggleAsal = true;
-      
-      function PilihAsalTujuanControl(controlDiv, map) {
-        var control = this;
-
-        // Set CSS styles for the DIV containing the control
-        // Setting padding to 5 px will offset the control
-        // from the edge of the map
-        controlDiv.style.padding = '5px';
-
-        // Set CSS for the control border
-        var controlUI = document.createElement('div');
-        controlUI.style.backgroundColor = 'white';
-        controlUI.style.borderStyle = 'solid';
-        controlUI.style.borderWidth = '1px';
-        controlUI.style.cursor = 'pointer';
-        controlUI.style.textAlign = 'center';
-        controlUI.title = 'Klik untuk berubah antara memilih titik asal dan titik tujuan';
-        controlDiv.appendChild(controlUI);
-
-        // Set CSS for the control interior
-        var controlText = document.createElement('div');
-        controlText.style.fontFamily = 'Arial,sans-serif';
-        controlText.style.fontSize = '16px';
-        controlText.style.paddingLeft = '4px';
-        controlText.style.paddingRight = '4px';
-        controlText.innerHTML = '<b>Memilih asal</b>';
-        controlUI.appendChild(controlText);
-
-        // Setup the click event listeners: simply set the map to
-        // Chicago
-        google.maps.event.addDomListener(controlUI, 'click', function() {
-          if (!control.toggleAsal) {
-            control.toggleAsal = true;
-            controlText.innerHTML = '<b>Memilih asal</b>';
-          }
-          else {
-            control.toggleAsal = false;
-            controlText.innerHTML = '<b>Memilih tujuan</b>';
-          }
-        });
-
-        google.maps.event.addListener(map, 'click', function(e) {
-          if (control.toggleAsal) {
-            if (asal != null) {
-              asal.setMap(null);
-              asal = null;
-            }
-            asal = new google.maps.Marker({
-              position: e.latLng,
-              map: map,
-              animation: google.maps.Animation.DROP,
-            });
-            console.log("Asal: " + asal.getPosition().lng() + " " + asal.getPosition().lat());
-          } else {
-            if (tujuan != null) {
-              tujuan.setMap(null);
-              tujuan = null;
-            }
-            tujuan = new google.maps.Marker({
-              position: e.latLng,
-              map: map,
-              animation: google.maps.Animation.DROP,
-            });
-            console.log("Tujuan: " + tujuan.getPosition().lng() + " " + tujuan.getPosition().lat());
-          }
-        })
-      }
-
       function initialize() {
         var itebe = new google.maps.LatLng(-6.892578,107.610397);
         var mapOptions = {
@@ -101,14 +32,6 @@
         };
         var map = new google.maps.Map(document.getElementById("map-canvas"),
             mapOptions);
-
-        // Create the DIV to hold the control and
-        // call the HomeControl() constructor passing
-        // in this DIV.
-        var pilihAsalTujuanControlDiv = document.createElement('div');
-        var pilihAsalTujuanControl = new PilihAsalTujuanControl(pilihAsalTujuanControlDiv, map);
-        pilihAsalTujuanControlDiv.index = 1;
-        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(pilihAsalTujuanControlDiv);
 
         // --- kode dibawah untuk menampilkan hasil query postgis berbentuk GeoJSON ---
 
