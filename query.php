@@ -4,11 +4,6 @@ define('TOLERANCE', 0.001);
 // koneksi ke PostgreSQL
 $dbconn = pg_connect("host=localhost dbname=rute_angkot user=postgres password=root") or die("Could not connect.");
 
-// dua titik (asal dan tujuan) buat coba-coba
-// $titik_asal = pg_fetch_result(pg_query($dbconn, "SELECT ST_GeomFromText('POINT(107.61507511138916 -6.882715029622187)')"), 0);
-// $titik_asal = pg_fetch_result(pg_query($dbconn, "SELECT ST_GeomFromText('POINT(107.6074469089508 -6.9051252962547895)')"), 0);
-// $titik_tujuan = pg_fetch_result(pg_query($dbconn, "SELECT ST_GeomFromText('POINT(107.6184868812561 -6.906105188659265)')"), 0);
-
 $koordinat_asal = $_GET["titik_asal"];
 $koordinat_tujuan = $_GET["titik_tujuan"];
 
@@ -43,23 +38,13 @@ while (count($rute_antrian) > 0) {
 			if ($i == count($array_rute_proses)-1) {
 				$location_point_akhir = pg_fetch_result(pg_query($dbconn, "SELECT ST_LineLocatePoint('$bagian_rute_akhir', '$titik_tujuan')"), 0);
 			} else {
-				// var_dump("aaa");
 				$rute_sesudahnya = $array_rute_proses[$i+1];
 				$location_point_akhir = cari_lokasi_titik_potong($bagian_rute_akhir, $rute_sesudahnya, $bagian_rute_akhir);
 			}
-			// var_dump($i);
-			// var_dump(pg_fetch_result(pg_query($dbconn, "SELECT ST_AsText('$bagian_rute_akhir')"), 0));
-			// var_dump($location_point_awal);
-			// var_dump($location_point_akhir);
-
-			// if ($location_point_awal > $location_point_akhir) {
-			// 	$temp = $location_point_akhir;
-			// 	$location_point_akhir = $location_point_awal;
-			// 	$location_point_awal = $temp;
-			// }
 
 			$rute_substring = pg_fetch_result(pg_query($dbconn, "SELECT ST_AsGeoJSON(ST_LineSubstring('$bagian_rute_akhir', $location_point_awal, $location_point_akhir))"), 0);
 			$decode_routes = json_decode($rute_substring, true);
+			$decode_routes["jurusan"] = pg_fetch_result(pg_query($dbconn, "SELECT jurusan FROM rute WHERE ST_Overlaps(geom, '$bagian_rute_akhir')"), 0);
 			$all_routes[] = $decode_routes;
 		}
 
@@ -89,7 +74,7 @@ function cari_lokasi_titik_potong($rute_awal, $rute_akhir, $acuan) {
 	$titik_potong_geom = pg_fetch_result(pg_query($dbconn, "SELECT ST_Intersection('$rute_akhir', '$rute_awal')"), 0);
 	$type = pg_fetch_result(pg_query($dbconn, "SELECT ST_GeometryType('$titik_potong_geom')"), 0);
 
-	if ($type == "ST_GeometryCollection") {
+	if ($type == "ST_GeometryCollection" || $type == "ST_MultiPoint") {
 		$num_geoms = pg_fetch_result(pg_query($dbconn, "SELECT ST_NumGeometries('$titik_potong_geom')"), 0);
 		for ($i=1; $i <= $num_geoms; $i++) {
 			$lokasi_potong = pg_fetch_result(pg_query($dbconn, "SELECT ST_GeometryN('$titik_potong_geom', $i)"), 0);
@@ -113,12 +98,15 @@ function cari_lokasi_titik_potong($rute_awal, $rute_akhir, $acuan) {
 				$location_point_titik_potong = $location_point_calon_titik_potong;
 			}
 		}
+	} else if ($type == "ST_LineString") {
+		$titik_potong = pg_fetch_result(pg_query($dbconn, "SELECT ST_StartPoint('$titik_potong_geom')"), 0);
+		$location_point_titik_potong = pg_fetch_result(pg_query($dbconn, "SELECT ST_LineLocatePoint('$acuan', '$titik_potong')"), 0);
 	} else if ($type == "ST_Point") {
 		$location_point_titik_potong = pg_fetch_result(pg_query($dbconn, "SELECT ST_LineLocatePoint('$acuan', '$titik_potong_geom')"), 0);
 	} else {
+		var_dump($type);
 		die("Unknown intersection type.");
 	}
-	// var_dump($location_point_titik_potong);
 	return $location_point_titik_potong;
 }
 

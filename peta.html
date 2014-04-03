@@ -13,6 +13,7 @@
     <script type="text/javascript">
       var asal = null;
       var tujuan = null;
+      var lines = [];
 
       function getRandomColor() {
         var letters = '0123456789ABCDEF'.split('');
@@ -21,6 +22,13 @@
           color += letters[Math.round(Math.random() * 15)];
         }
         return color;
+      }
+
+      function emptyLines() {
+        for (var i = 0; i < lines.length; i++) {
+          lines[i].setMap(null);
+        };
+        lines = [];
       }
 
       PilihAsalTujuanControl.prototype.toggleAsal = true;
@@ -52,8 +60,6 @@
         controlText.innerHTML = '<b>Memilih asal</b>';
         controlUI.appendChild(controlText);
 
-        // Setup the click event listeners: simply set the map to
-        // Chicago
         google.maps.event.addDomListener(controlUI, 'click', function() {
           if (!control.toggleAsal) {
             control.toggleAsal = true;
@@ -118,8 +124,6 @@
         controlText.innerHTML = '<b>Kalkulasi rute</b>';
         controlUI.appendChild(controlText);
 
-        // Setup the click event listeners: simply set the map to
-        // Chicago
         google.maps.event.addDomListener(controlUI, 'click', function() {
             var xmlhttp = new XMLHttpRequest();
             xmlhttp.onreadystatechange = function() {
@@ -129,7 +133,9 @@
                   alert("error.");
                   return;
                 }
+                emptyLines();
                 var jsonstring = eval(xmlhttp.responseText);
+                var jurusan = "";
                 for (var h = 0; h < jsonstring.length; h++) {
                   var lineStringCoords = [];
                   var GeoJSON = jsonstring[h];
@@ -143,8 +149,10 @@
                     strokeOpacity: 1.0,
                     strokeWeight: 2
                   });
-                  // tambahin alert disini buat ngasitau jurusan angkotnya
+                  lines.push(lineString);
+                  jurusan += GeoJSON.jurusan + "; "; 
                 }
+                alert("Jurusan yang harus dinaiki: " + jurusan);
               }
             };
             var querystring = "query.php?titik_asal="+asal.getPosition().lng() + "%20" + asal.getPosition().lat()
