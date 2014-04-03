@@ -59,3 +59,10 @@
 	border-style:dashed;
 	border-color:#454544;
 }
+
+.penjelasan {
+	padding-left:10px;
+	padding-right:10px;
+	font:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+	text-align:justify;
+}
