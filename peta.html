@@ -150,8 +150,9 @@
                     strokeWeight: 2
                   });
                   lines.push(lineString);
-                  jurusan += GeoJSON.jurusan + "; "; 
+                  jurusan += GeoJSON.jurusan + " -> "; 
                 }
+                jurusan = jurusan.substr(0, jurusan.length-4);
                 alert("Jurusan yang harus dinaiki: " + jurusan);
               }
             };
