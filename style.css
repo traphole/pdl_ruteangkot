@@ -21,6 +21,11 @@
 	border-spacing:10px;
 }
 
+.bodymargin2 {
+	margin-bottom:60px;
+	border-spacing:10px;
+}
+
 .footer {
 	background-color:#111111;
 	text-align:center;
