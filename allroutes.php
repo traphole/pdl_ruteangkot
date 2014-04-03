@@ -3,9 +3,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel='stylesheet' type="text/css" href="style.css"/>
-<title>Tentang Kami</title>
+<title>Semua Rute</title>
 <link rel="shortcut icon" href="LOGO.png" />
-
 </head>
 
 <body class="main">
@@ -33,24 +32,19 @@
 	</tr>
     
     <tr class="bodyback">
-    	<td height="580" colspan="6">
-        	<h1 align="center"> AngkotWay Team </h1>
-        	<table width="80%" align="center" class="bodymargin2">
+    	<td height="580px" colspan="6">
+        	<table width="80%" align="center" class="bodymargin">
             	<tr>
-				  	<td align="center">
-                  		<h1> Trapsilo Pramudya </h1>
-                        <img class="img" src="trap.jpg" width="339" height="339" /> <br />
-                        13510052@std.stei.itb.ac.id
-	        		</td>
-                    <td align="center">
-                    	<h1> Hanif Eridaputra </h1>
-						<img class="img" src="hanif.jpg" width="339" height="339" /> <br />
-                        13510091@std.stei.itb.ac.id
+				  <td>
+        				<div>
+							<iframe class="frame" src="showallroutes.html" width="100%" height="500">  </iframe>
+						</div>
 					</td>
+                    
                     
                 </tr>
             </table>
-      </td>
+      	</td>
     </tr>
 
 	<tr>
